@@ -14,3 +14,11 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('/addfile', 'FileController@store');
+Route::get('/addfile', 'FileController@create');
+Route::get('/allfiles', 'FileController@index');
+
+Route::get('/deletefile/{file}', 'FileController@destroy');
+
+
