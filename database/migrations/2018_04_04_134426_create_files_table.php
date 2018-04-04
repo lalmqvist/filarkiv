@@ -18,7 +18,8 @@ class CreateFilesTable extends Migration
             $table->string('filename');
             $table->string('uploader');
             $table->string('filetype');
-            $table->string('description');
+            $table->string('path');
+            $table->string('description')->nullable($value = true);
             $table->timestamps();
 
             
