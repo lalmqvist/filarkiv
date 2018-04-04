@@ -41,8 +41,9 @@ If any of them doesn't return a version number you need to install those before 
 2. Install dependencies `composer install`, `npm install`
 3. Run project `php artisan serve`, `npm run dev`
 4. You'll find the development server running at http://127.0.0.1:8000/
-5. Run `php artisan migrate:install`
-6. To migrate database tables, run `php artisan migrate`
-7. If you want to rollback migrations, run `php artisan migrate:fresh`
+5. edit db-setting in the .env file
+6. Run `php artisan migrate:install`
+7. To migrate database tables, run `php artisan migrate`
+8. If you want to rollback migrations, run `php artisan migrate:fresh`
 
 
