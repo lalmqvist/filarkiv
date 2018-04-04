@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\UploadRequest;
 
 class FileController extends Controller
 {
@@ -14,7 +16,10 @@ class FileController extends Controller
      */
     public function index()
     {
-        //
+        $files = File::all();
+
+// dd($files);
+        return view('files', compact('files'));
     }
 
     /**
@@ -24,7 +29,8 @@ class FileController extends Controller
      */
     public function create()
     {
-        //
+        return view('newfile');
+
     }
 
     /**
@@ -35,69 +41,39 @@ class FileController extends Controller
      */
     public function store(Request $request)
     {
-        //Validate form
+        // Validate form
         $request->validate([
-            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'filename' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'name' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'description' => 'required|string|max:100',
+            'file' => 'required|file|mimes:jpeg,pdf,xml',
+            'filename' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
             ]);
     
-    //Fetch the uploaded file
+        //Fetch the uploaded file
         $theFile = $request->file('file');
-
-    
-        //Sets the filename
-        $input['file_name'] = $request->input('title');
-    
-        $destinationPath = public_path('/img/files');
-    
-        //Set the image size and save to given path
-        $theFile->save($destinationPath . '/' . $input['filename']);
-
-    //Saves ad to ads table
-        Ad::create([
-            'user_id' => Auth::user()->id,
-            'title' => $request->input('title'),
-            'price' => $request->input('price'),
-            'brand' => $request->input('brand'),
-            'type' => $request->input('type'),
-            'size' => $request->input('size'),
-            'color' => $request->input('color'),
-            'material' => $request->input('material'),
-            'condition' => $request->input('condition'),
-            'other' => $request->input('other'),
-            'thumb' => $input['thumb_name'],
-            'active' => true,
-        ]);
-
-        //Adds the images to img_ads table with last ad_id
-        foreach ($input['img'] as $key => $img) {
-            $latestAd = Ad::latest()->first();
-            $latestAd->images()->create([
-                'ad_id' => $latestAd->id,
-                'img' => $img,
-            ]);
-        }
-            
-        //Adds chosen categories to ads_categories table
-        foreach ($request->input('category') as $key => $value) {
-            $latestAd = Ad::latest()->first();
-            $latestAd->ad_categories()->create([
-                'ad_id' => $latestAd->id,
-                'category_id' => $key,
-            ]);
-        }
         
-        //Adds the chosen charity to ads_charities table    
-        $latestAd = Ad::latest()->first();
-        $latestAd->charitySum()->create([
-            'ad_id' => $latestAd->id,
-            'charity_id' => $request->input('charity'),
-            'sum' => $request->input('charitySum')
-        ]);
+        //Sets the filename
+        $fileName = $request->input('filename') . '.' . $theFile->getClientOriginalExtension();
+        
+        //Fetch the uploaded files filetype
+        $fileType = $theFile->getMimeType();
 
-        return back()->with('status','Din annons är skapad!');
+
+        //save to given path
+        $path = $request->file('file')->storeAs(
+            'files', $fileName
+        );
+
+        //Save file to files table
+        File::create([
+            'filename' => $fileName,
+            'path' => $path,
+            'uploader' => $request->input('name'),
+            'filetype' => $fileType,
+            'description' => $request->input('description'),
+        ]);
+        
+        return back()->with('status','The file has been saved!');
 
     }
 
@@ -143,6 +119,9 @@ class FileController extends Controller
      */
     public function destroy(File $file)
     {
-        //
+        Storage::delete('files/'.$file->filename);
+        File::where('id', $file->id)->delete();
+
+        return back()->with('status','The file has been deleted!');
     }
 }
