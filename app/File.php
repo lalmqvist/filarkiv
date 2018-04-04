@@ -12,6 +12,6 @@ class File extends Model
      * @var array
      */
     protected $fillable = [
-        'filename', 'uploader', 'filetype', 'description',
+        'filename', 'uploader', 'filetype', 'path', 'description',
     ];
 }
